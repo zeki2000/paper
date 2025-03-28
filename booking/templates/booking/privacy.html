@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}隐私政策{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-gradient-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="mb-0"><i class="bi bi-shield-lock me-2"></i>隐私政策</h2>
+                        <button onclick="history.back()" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left"></i> 返回
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <small class="text-muted">最后更新日期: {% now "Y年m月d日" %}</small>
+                        <a href="{% url 'terms' %}" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-file-earmark-text"></i> 用户协议
+                        </a>
+                    </div>
+
+                    <div class="privacy-content">
+                        <section class="mb-4">
+                            <h4 class="text-success"><i class="bi bi-1-circle"></i> 信息收集</h4>
+                            <p class="ps-4">我们收集您主动提供的个人信息，包括姓名、联系方式、地址等必要服务信息。</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-success"><i class="bi bi-2-circle"></i> 信息使用</h4>
+                            <p class="ps-4">您的信息仅用于提供服务、改善体验和必要的安全验证。</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-success"><i class="bi bi-3-circle"></i> 信息保护</h4>
+                            <p class="ps-4">我们采用行业标准加密技术保护您的数据安全。</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-success"><i class="bi bi-4-circle"></i> 信息共享</h4>
+                            <p class="ps-4">未经您同意，我们不会向第三方共享您的个人信息。</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-success"><i class="bi bi-5-circle"></i> Cookies使用</h4>
+                            <p class="ps-4">我们使用必要的Cookies来维持网站功能，您可随时在浏览器设置中禁用。</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-success"><i class="bi bi-6-circle"></i> 您的权利</h4>
+                            <p class="ps-4">您有权查询、更正或删除您的个人信息。</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-success"><i class="bi bi-7-circle"></i> 政策更新</h4>
+                            <p class="ps-4">我们可能不定期更新本政策，重大变更将通过显著方式通知。</p>
+                        </section>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .privacy-content {
+        line-height: 1.8;
+    }
+    .card-header {
+        border-radius: 0.5rem 0.5rem 0 0 !important;
+    }
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #28a745 0%, #5cb85c 100%);
+    }
+</style>
+{% endblock %}

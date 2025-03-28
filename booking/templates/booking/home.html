@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 mb-4">专业家政服务平台</h1>
+                <p class="lead mb-4">为您提供优质、可靠的家政服务解决方案</p>
+                <div class="d-flex gap-3">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'service_list' 1 %}" class="btn btn-light btn-lg">立即预约</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-light btn-lg">登录/注册</a>
+                        <a href="{% url 'service_list' 1 %}" class="btn btn-outline-light btn-lg">浏览服务</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <img src="https://via.placeholder.com/600x400" alt="家政服务" class="img-fluid rounded shadow">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2>我们的优势</h2>
+        <p class="lead text-muted">为什么选择我们的家政服务</p>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3 text-primary">
+                        <i class="bi bi-shield-check fs-1"></i>
+                    </div>
+                    <h5>专业认证</h5>
+                    <p class="text-muted">所有服务人员经过严格筛选和培训</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3 text-primary">
+                        <i class="bi bi-currency-exchange fs-1"></i>
+                    </div>
+                    <h5>透明定价</h5>
+                    <p class="text-muted">明码标价，无隐藏费用</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3 text-primary">
+                        <i class="bi bi-headset fs-1"></i>
+                    </div>
+                    <h5>24小时客服</h5>
+                    <p class="text-muted">随时为您解决服务问题</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Service Categories -->
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2>服务分类</h2>
+            <p class="lead text-muted">选择您需要的服务类型</p>
+        </div>
+        <div class="row">
+            {% for category in categories %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ category.name }}</h5>
+                        <p class="card-text text-muted">{{ category.description }}</p>
+                        <a href="{% url 'service_list' category.id %}" class="btn btn-outline-primary">查看服务</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Popular Services -->
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2>热门服务</h2>
+        <p class="lead text-muted">客户最常选择的服务</p>
+    </div>
+    <div class="row">
+        {% for service in services %}
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ service.name }}</h5>
+                    <p class="card-text text-muted">{{ service.description }}</p>
+                    <p class="text-primary fw-bold">¥{{ service.price }}</p>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'create_order' service.id %}" class="btn btn-primary w-100">立即预约</a>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary w-100">登录后预约</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Testimonials -->
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2>客户评价</h2>
+            <p class="lead text-muted">听听他们怎么说</p>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="mb-3 text-warning">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="card-text">"服务非常专业，阿姨打扫得很干净，下次还会选择！"</p>
+                        <p class="text-muted mb-0">- 张女士</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="mb-3 text-warning">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="card-text">"预约方便，价格透明，服务人员准时到达，非常满意。"</p>
+                        <p class="text-muted mb-0">- 李先生</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="mb-3 text-warning">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="card-text">"第一次使用家政服务，体验超出预期，会推荐给朋友。"</p>
+                        <p class="text-muted mb-0">- 王小姐</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="mb-4">准备好体验优质家政服务了吗？</h2>
+        <a href="{% url 'service_list' 1 %}" class="btn btn-light btn-lg px-4">立即预约</a>
+    </div>
+</div>
+{% endblock %}

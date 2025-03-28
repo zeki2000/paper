@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}用户协议{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-gradient-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>用户协议</h2>
+                        <button onclick="history.back()" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left"></i> 返回
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <small class="text-muted">最后更新日期: {% now "Y年m月d日" %}</small>
+                        <a href="{% url 'privacy' %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-shield-lock"></i> 隐私政策
+                        </a>
+                    </div>
+
+                    <div class="terms-content">
+                        <section class="mb-4">
+                            <h4 class="text-primary"><i class="bi bi-1-circle"></i> 服务条款</h4>
+                            <p class="ps-4">欢迎使用我们的家政服务平台。本协议是您与平台之间的法律协议。</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-primary"><i class="bi bi-2-circle"></i> 用户注册</h4>
+                            <p class="ps-4">用户需提供真实、准确、完整的注册信息。平台有权拒绝不实注册。</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-primary"><i class="bi bi-3-circle"></i> 服务内容</h4>
+                            <p class="ps-4">平台提供家政服务信息展示、预约、支付等功能。</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-primary"><i class="bi bi-4-circle"></i> 用户义务</h4>
+                            <p class="ps-4">用户不得发布违法信息，不得干扰平台正常运营。</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-primary"><i class="bi bi-5-circle"></i> 隐私保护</h4>
+                            <p class="ps-4">平台将依法保护用户隐私，详见《隐私政策》。</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-primary"><i class="bi bi-6-circle"></i> 免责声明</h4>
+                            <p class="ps-4">平台不对服务质量做任何保证，纠纷由服务提供方与用户自行协商解决。</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-primary"><i class="bi bi-7-circle"></i> 协议修改</h4>
+                            <p class="ps-4">平台有权修改本协议，修改后将通过适当方式通知用户。</p>
+                        </section>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .terms-content {
+        line-height: 1.8;
+    }
+    .card-header {
+        border-radius: 0.5rem 0.5rem 0 0 !important;
+    }
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #2D5AFA 0%, #3A7BFF 100%);
+    }
+</style>
+{% endblock %}
