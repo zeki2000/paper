@@ -27,7 +27,13 @@
                     <input type="hidden" name="login_type" value="code">
                     <div class="mb-3 input-group">
                         <span class="input-group-text" style="width: 60px;">+86</span>
-                        <input type="tel" class="form-control" name="phone" placeholder="请输入手机号" required>
+                        <input type="tel" class="form-control" name="phone" 
+                               id="phone-input" 
+                               placeholder="请输入11位手机号" 
+                               maxlength="11"
+                               pattern="^1[3-9]\d{9}$"
+                               required>
+                        <div id="phone-error" class="invalid-feedback">请输入有效的手机号</div>
                     </div>
                     <div class="mb-3 input-group">
                         <input type="text" class="form-control" name="code" placeholder="请输入验证码" required>
@@ -43,8 +49,15 @@
                 <form method="post" action="{% url 'login' %}">
                     {% csrf_token %}
                     <input type="hidden" name="login_type" value="password">
-                    <div class="mb-3">
-                        <input type="text" class="form-control" name="phone" placeholder="请输入手机号" required>
+                    <div class="mb-3 input-group">
+                        <span class="input-group-text" style="width: 60px;">+86</span>
+                        <input type="tel" class="form-control" name="phone" 
+                               id="phone-input-password" 
+                               placeholder="请输入11位手机号" 
+                               maxlength="11"
+                               pattern="^1[3-9]\d{9}$"
+                               required>
+                        <div id="phone-error-password" class="invalid-feedback">请输入有效的手机号</div>
                     </div>
                     <div class="mb-3 input-group">
                         <input type="password" class="form-control" name="password" placeholder="请输入密码" required>
@@ -71,9 +84,98 @@
 
 <!-- 自定义交互逻辑 -->
 <script>
-    // 验证码发送倒计时
-    document.querySelector('.send-code-btn').addEventListener('click', function() {
-        let btn = this;
+    // 手机号验证 - 验证码登录
+    const phoneInput = document.getElementById('phone-input');
+    // 手机号验证 - 密码登录
+    const phoneInputPassword = document.getElementById('phone-input-password');
+    
+    // Track previous valid value for each input
+    const previousValues = new WeakMap();
+    
+    function validatePhoneInput(e) {
+        const input = e.target;
+        const value = input.value;
+        const cursorPos = input.selectionStart;
+        const errorElement = document.getElementById(input.id === 'phone-input' ? 'phone-error' : 'phone-error-password');
+        
+        // Immediately filter out non-digit characters
+        const filteredValue = value.replace(/\D/g, '');
+        
+        // If value changed after filtering (had non-digits)
+        if (value !== filteredValue) {
+            // Show error message
+            errorElement.textContent = '只能输入数字';
+            errorElement.style.display = 'block';
+            setTimeout(() => errorElement.style.display = 'none', 2000);
+            
+            // Update input with filtered value
+            input.value = filteredValue.substring(0, 11);
+            
+            // Adjust cursor position
+            const newCursorPos = Math.max(0, cursorPos - (value.length - filteredValue.length));
+            input.setSelectionRange(newCursorPos, newCursorPos);
+            return;
+        }
+        
+        // Enforce 11-digit limit
+        input.value = filteredValue.substring(0, 11);
+        
+        // Validate phone format
+        const isValid = /^1[3-9]\d{9}$/.test(filteredValue);
+        e.target.classList.toggle('is-invalid', !isValid && filteredValue.length === 11);
+        
+        // Update error message for invalid phone format
+        if (filteredValue.length === 11 && !isValid) {
+            errorElement.textContent = '请输入有效的手机号码';
+            errorElement.style.display = 'block';
+        } else if (value === filteredValue) {
+            errorElement.style.display = 'none';
+        }
+        
+        // Update send button state
+        if (e.target.id === 'phone-input') {
+            document.querySelector('.send-code-btn').disabled = !isValid;
+        }
+    }
+
+    // 为两个手机号输入框添加事件监听
+    [phoneInput, phoneInputPassword].forEach(input => {
+        // Track IME composition state
+        input.composing = false;
+        input.addEventListener('compositionstart', () => {
+            input.composing = true;
+            previousValues.set(input, input.value);
+        });
+        input.addEventListener('compositionend', (e) => {
+            input.composing = false;
+            validatePhoneInput(e);
+        });
+        input.addEventListener('input', validatePhoneInput);
+    });
+
+    // 提交表单时确保发送原始值
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const phoneInput = this.querySelector('input[name="phone"]');
+            if (phoneInput && phoneInput.dataset.rawValue) {
+                phoneInput.value = phoneInput.dataset.rawValue;
+            }
+        });
+    });
+
+    // 验证码发送倒计时与阿里云短信集成
+    document.querySelector('.send-code-btn').addEventListener('click', async function() {
+        const phoneInput = document.getElementById('phone-input');
+        const phone = phoneInput.dataset.rawValue || phoneInput.value.replace(/\D/g, '');
+        const btn = this;
+        
+        if (!/^1[3-9]\d{9}$/.test(phone)) {
+            phoneInput.classList.add('is-invalid');
+            document.getElementById('phone-error').textContent = '请输入有效的手机号码';
+            document.getElementById('phone-error').style.display = 'block';
+            return;
+        }
+
         btn.disabled = true;
         let seconds = 60;
         const timer = setInterval(() => {
@@ -86,16 +188,34 @@
             }
         }, 1000);
         
-        // 发送验证码请求
-        const phone = document.querySelector('#code-login input[name="phone"]').value;
-        fetch("{% url 'send_code' %}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({phone: phone})
-        });
+        try {
+            const response = await fetch("{% url 'send_code' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    phone: phone
+                })
+            });
+            
+            const result = await response.json();
+            if (!result.success) {
+                clearInterval(timer);
+                btn.disabled = false;
+                btn.textContent = '发送验证码';
+                alert(result.message || '发送验证码失败');
+            } else {
+                // 测试环境下直接显示验证码
+                alert('测试验证码：1234');
+            }
+        } catch (error) {
+            clearInterval(timer);
+            btn.disabled = false;
+            btn.textContent = '发送验证码';
+            alert('发送验证码失败: ' + error.message);
+        }
     });
 
     // 密码显示切换

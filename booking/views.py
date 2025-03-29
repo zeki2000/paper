@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
@@ -8,7 +9,15 @@ from django.utils import timezone
 from datetime import timedelta
 import json
 import random
+from aliyunsdkcore.client import AcsClient
+from aliyunsdkcore.request import CommonRequest
 from .models import User, Service, ServiceCategory, Order, VerificationCode
+
+# 阿里云短信配置
+ALIYUN_ACCESS_KEY_ID = os.getenv('ALIYUN_SMS_ACCESS_KEY_ID')
+ALIYUN_ACCESS_KEY_SECRET = os.getenv('ALIYUN_SMS_ACCESS_KEY_SECRET') 
+ALIYUN_SIGN_NAME = os.getenv('ALIYUN_SMS_SIGN_NAME')
+ALIYUN_TEMPLATE_CODE = os.getenv('ALIYUN_SMS_TEMPLATE_CODE')
 
 def terms_view(request):
     return render(request, 'booking/terms.html')
@@ -37,9 +46,34 @@ def send_verification_code(request):
             # 生成并保存验证码
             code = VerificationCode.generate_code(phone)
             
-            # 这里应该调用短信服务发送验证码
-            # 实际项目中需要接入短信服务API
-            print(f"验证码: {code}")  # 测试用，实际项目请删除
+            # 发送阿里云短信
+            client = AcsClient(ALIYUN_ACCESS_KEY_ID, ALIYUN_ACCESS_KEY_SECRET, 'default')
+            request = CommonRequest()
+            request.set_accept_format('json')
+            request.set_domain('dysmsapi.aliyuncs.com')
+            request.set_method('POST')
+            request.set_protocol_type('https')
+            request.set_version('2017-05-25')
+            request.set_action_name('SendSms')
+            
+            request.add_query_param('PhoneNumbers', phone)
+            request.add_query_param('SignName', ALIYUN_SIGN_NAME)
+            request.add_query_param('TemplateCode', ALIYUN_TEMPLATE_CODE)
+            request.add_query_param('TemplateParam', json.dumps({'code': code}))
+            
+            try:
+                response = client.do_action_with_exception(request)
+                result = json.loads(response.decode('utf-8'))
+                if result.get('Code') != 'OK':
+                    return JsonResponse({
+                        'success': False, 
+                        'message': f"短信发送失败: {result.get('Message')}"
+                    }, status=500)
+            except Exception as e:
+                return JsonResponse({
+                    'success': False, 
+                    'message': f"短信服务异常: {str(e)}"
+                }, status=500)
             
             return JsonResponse(
                 {'success': True, 'message': '验证码已发送'},
