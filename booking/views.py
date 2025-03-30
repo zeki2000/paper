@@ -46,38 +46,18 @@ def send_verification_code(request):
             # 生成并保存验证码
             code = VerificationCode.generate_code(phone)
             
-            # 发送阿里云短信
-            client = AcsClient(ALIYUN_ACCESS_KEY_ID, ALIYUN_ACCESS_KEY_SECRET, 'default')
-            request = CommonRequest()
-            request.set_accept_format('json')
-            request.set_domain('dysmsapi.aliyuncs.com')
-            request.set_method('POST')
-            request.set_protocol_type('https')
-            request.set_version('2017-05-25')
-            request.set_action_name('SendSms')
-            
-            request.add_query_param('PhoneNumbers', phone)
-            request.add_query_param('SignName', ALIYUN_SIGN_NAME)
-            request.add_query_param('TemplateCode', ALIYUN_TEMPLATE_CODE)
-            request.add_query_param('TemplateParam', json.dumps({'code': code}))
-            
-            try:
-                response = client.do_action_with_exception(request)
-                result = json.loads(response.decode('utf-8'))
-                if result.get('Code') != 'OK':
-                    return JsonResponse({
-                        'success': False, 
-                        'message': f"短信发送失败: {result.get('Message')}"
-                    }, status=500)
-            except Exception as e:
+            # 调用短信服务发送验证码
+            from .utils.sms_service import SMSService
+            sms_service = SMSService()
+            if sms_service.send_verification_code(phone, code):
                 return JsonResponse({
-                    'success': False, 
-                    'message': f"短信服务异常: {str(e)}"
-                }, status=500)
-            
-            return JsonResponse(
-                {'success': True, 'message': '验证码已发送'},
-                status=200)
+                    'success': True, 
+                    'message': '验证码已发送'
+                }, status=200)
+            return JsonResponse({
+                'success': False,
+                'message': '短信发送失败，请稍后重试'
+            }, status=500)
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)})
     return JsonResponse({'success': False, 'message': '无效请求'})

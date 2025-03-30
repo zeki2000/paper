@@ -205,10 +205,8 @@
                 clearInterval(timer);
                 btn.disabled = false;
                 btn.textContent = '发送验证码';
-                alert(result.message || '发送验证码失败');
-            } else {
-                // 测试环境下直接显示验证码
-                alert('测试验证码：1234');
+                document.getElementById('phone-error').textContent = result.message || '发送验证码失败';
+                document.getElementById('phone-error').style.display = 'block';
             }
         } catch (error) {
             clearInterval(timer);
