@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户服务门户</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 56px;
+        }
+        .sidebar {
+            height: calc(100vh - 56px);
+            position: fixed;
+            top: 56px;
+            left: 0;
+            width: 250px;
+            background: #1e3a8a;
+            background: linear-gradient(135deg, #1e3a8a, #1e40af);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        .list-group-item {
+            background-color: transparent;
+            border-color: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.8);
+        }
+        .list-group-item:hover {
+            background-color: rgba(255,255,255,0.05);
+            color: white;
+        }
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+            width: 0;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            transition: all 0.3s;
+            background-color: #f8f9fa;
+            min-height: calc(100vh - 56px);
+        }
+        .main-content.expanded {
+            margin-left: 0;
+        }
+        .service-card {
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: none;
+            background: white;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        .service-card .btn {
+            border-radius: 20px;
+            padding: 0.375rem 1.5rem;
+            font-weight: 500;
+        }
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 1.25rem;
+            transition: transform 0.3s ease;
+        }
+        .service-card:hover .service-icon {
+            transform: scale(1.1);
+        }
+        .service-category {
+            margin-bottom: 2rem;
+        }
+        .category-title {
+            position: relative;
+            padding-bottom: 0.75rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            color: #343a40;
+        }
+        .category-title:after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            border-radius: 2px;
+        }
+        .nav-link.active {
+            background-color: rgba(255,255,255,0.1);
+            color: white !important;
+            border-left: 3px solid white;
+        }
+        .nav-link {
+            color: #495057;
+        }
+        .nav-link:hover {
+            color: #3b82f6;
+        }
+        .nav.flex-column .nav-link {
+            color: white;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem 0;
+            border-radius: 0.25rem;
+        }
+        .nav.flex-column .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        .collapse-icon {
+            transition: transform 0.3s;
+        }
+        .nav-link:not(.collapsed) .collapse-icon {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container-fluid">
+            <button class="navbar-toggler me-2" type="button" id="sidebarToggle">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="#">家务服务系统</a>
+            <form class="d-flex ms-3">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="搜索服务...">
+                    <button class="btn btn-light" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+            <div class="d-flex align-items-center">
+                <div class="dropdown">
+                <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                    {% if user_info.avatar %}
+                    <img src="/static/booking/{{ user_info.avatar }}" width="32" height="32" class="rounded-circle me-2">
+                    {% else %}
+                    <i class="bi bi-person-circle me-2"></i>
+                    {% endif %}
+                    <strong>{{ user_info.nickname }}</strong>
+                </a>
+                    <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                        <li><a class="dropdown-item" href="#">个人资料</a></li>
+                        <li><a class="dropdown-item" href="#">设置</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#">退出登录</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar" id="sidebar">
+        <div class="list-group list-group-flush">
+            <!-- 个人信息管理 -->
+            <div class="list-group-item">
+                <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#personalCollapse">
+                    <span><i class="bi bi-person me-2"></i>个人信息管理</span>
+                    <i class="bi bi-chevron-down collapse-icon"></i>
+                </a>
+                <div class="collapse" id="personalCollapse">
+                    <ul class="nav flex-column ps-3">
+                        <li><a href="#" class="nav-link"><i class="bi bi-card-image me-2"></i>基本信息维护</a></li>
+                        <li><a href="#" class="nav-link"><i class="bi bi-shield-lock me-2"></i>账户安全</a></li>
+                        <li><a href="#" class="nav-link"><i class="bi bi-geo-alt me-2"></i>地址簿管理</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 实名认证 -->
+            <a href="#" class="list-group-item list-group-item-action py-3">
+                <i class="bi bi-person-check me-2"></i>实名认证
+            </a>
+
+            <!-- 服务预约 -->
+            <div class="list-group-item">
+                <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#serviceCollapse">
+                    <span><i class="bi bi-calendar-plus me-2"></i>服务预约</span>
+                    <i class="bi bi-chevron-down collapse-icon"></i>
+                </a>
+                <div class="collapse" id="serviceCollapse">
+                    <ul class="nav flex-column ps-3">
+                        <li><a href="#" class="nav-link"><i class="bi bi-list-ul me-2"></i>服务列表</a></li>
+                        <li><a href="#" class="nav-link"><i class="bi bi-clock-history me-2"></i>预约记录</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 订单管理 -->
+            <a href="#" class="list-group-item list-group-item-action py-3">
+                <i class="bi bi-receipt me-2"></i>订单管理
+            </a>
+
+            <!-- 售后服务 -->
+            <div class="list-group-item">
+                <a class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#afterSaleCollapse">
+                    <span><i class="bi bi-headset me-2"></i>售后服务</span>
+                    <i class="bi bi-chevron-down collapse-icon"></i>
+                </a>
+                <div class="collapse" id="afterSaleCollapse">
+                    <ul class="nav flex-column ps-3">
+                        <li><a href="#" class="nav-link"><i class="bi bi-arrow-repeat me-2"></i>退款申请</a></li>
+                        <li><a href="#" class="nav-link"><i class="bi bi-tools me-2"></i>返工申请</a></li>
+                        <li><a href="#" class="nav-link"><i class="bi bi-chat-left-text me-2"></i>投诉建议</a></li>
+                        <li><a href="#" class="nav-link"><i class="bi bi-star me-2"></i>服务评价</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <!-- 日常保洁 -->
+        <div class="service-category">
+            <h2 class="category-title">日常保洁服务</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card service-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="service-icon text-primary">
+                                <i class="bi bi-house"></i>
+                            </div>
+                            <h3 class="h5">日常保洁</h3>
+                            <p>专业保洁人员为您提供日常家居清洁服务</p>
+                            <a href="#" class="btn btn-primary">立即预约</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card service-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="service-icon text-primary">
+                                <i class="bi bi-brightness-high"></i>
+                            </div>
+                            <h3 class="h5">深度清洁</h3>
+                            <p>彻底清洁家居每个角落，包括死角区域</p>
+                            <a href="#" class="btn btn-primary">立即预约</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card service-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="service-icon text-info">
+                                <i class="bi bi-calendar-check"></i>
+                            </div>
+                            <h3 class="h5">定期保洁</h3>
+                            <p>定制周期性保洁计划，享受持续清洁环境</p>
+                            <a href="#" class="btn btn-info">立即预约</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 家电维修 -->
+        <div class="service-category">
+            <h2 class="category-title">家电维修服务</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card service-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="service-icon text-warning">
+                                <i class="bi bi-tv"></i>
+                            </div>
+                            <h3 class="h5">电视维修</h3>
+                            <p>专业电视维修服务，解决各种电视故障</p>
+                            <a href="#" class="btn btn-warning">立即预约</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card service-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="service-icon text-danger">
+                                <i class="bi bi-snow"></i>
+                            </div>
+                            <h3 class="h5">空调维修</h3>
+                            <p>空调不制冷/不制热？我们帮您解决</p>
+                            <a href="#" class="btn btn-danger">立即预约</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card service-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="service-icon text-secondary">
+                                <i class="bi bi-washing-machine"></i>
+                            </div>
+                            <h3 class="h5">洗衣机维修</h3>
+                            <p>专业维修各种品牌洗衣机</p>
+                            <a href="#" class="btn btn-secondary">立即预约</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 其他服务 -->
+        <div class="service-category">
+            <h2 class="category-title">其他家政服务</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card service-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="service-icon text-primary">
+                                <i class="bi bi-cup-hot"></i>
+                            </div>
+                            <h3 class="h5">月嫂服务</h3>
+                            <p>专业月嫂照顾产妇和新生儿</p>
+                            <a href="#" class="btn btn-primary">立即预约</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card service-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="service-icon text-primary">
+                                <i class="bi bi-tree"></i>
+                            </div>
+                            <h3 class="h5">园艺服务</h3>
+                            <p>专业园艺师为您打理花园和绿植</p>
+                            <a href="#" class="btn btn-primary">立即预约</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card service-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="service-icon text-info">
+                                <i class="bi bi-house-heart"></i>
+                            </div>
+                            <h3 class="h5">老人陪护</h3>
+                            <p>专业护理人员照顾老人日常生活</p>
+                            <a href="#" class="btn btn-info">立即预约</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            });
+            
+            // 响应式处理 - 小屏幕默认折叠侧边栏
+            if (window.innerWidth < 992) {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+            }
+            
+            window.addEventListener('resize', function() {
+                if (window.innerWidth < 992) {
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('expanded');
+                } else {
+                    sidebar.classList.remove('collapsed');
+                    mainContent.classList.remove('expanded');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

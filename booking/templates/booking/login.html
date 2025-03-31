@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}登录切换{% endblock %}
+{% block title %}登录注册{% endblock %}
 
 {% block content %}
 <div class="auth-container">
@@ -22,7 +22,7 @@
         <div class="tab-content">
             <!-- 验证码登录 -->
             <div class="tab-pane fade show active" id="code-login">
-                <form method="post" action="{% url 'login' %}">
+                <form id="code-login-form">
                     {% csrf_token %}
                     <input type="hidden" name="login_type" value="code">
                     <div class="mb-3 input-group">
@@ -39,7 +39,7 @@
                         <input type="text" class="form-control" name="code" placeholder="请输入验证码" required>
                         <button type="button" class="btn btn-outline-secondary send-code-btn">发送验证码</button>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">登录</button>
+                    <button type="button" id="code-login-btn" class="btn btn-primary w-100">登录</button>
                 </form>
                 <div class="text-muted small mt-3">未注册的手机号将自动注册</div>
             </div>
@@ -222,6 +222,32 @@
             const input = icon.previousElementSibling;
             input.type = input.type === 'password' ? 'text' : 'password';
         });
+    });
+
+    // 验证码登录处理
+    document.getElementById('code-login-btn').addEventListener('click', async function() {
+        const form = document.getElementById('code-login-form');
+        const formData = new FormData(form);
+        
+        try {
+            const response = await fetch("{% url 'login' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                window.location.href = '/' + result.redirect_url + '/';
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            alert('登录失败: ' + error.message);
+        }
     });
 </script>
 

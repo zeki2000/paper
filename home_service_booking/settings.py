@@ -10,7 +10,49 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+"""
+Django项目设置模块，包含：
+1. 基础配置(DEBUG/密钥/域名等)
+2. 应用注册配置
+3. 数据库配置
+4. 静态文件配置
+5. 模板配置
+6. 中间件配置
+7. 认证配置
+8. 国际化配置
+
+Django project settings module, contains:
+1. Basic configurations (DEBUG/SECRET_KEY/ALLOWED_HOSTS etc.)
+2. App registrations
+3. Database configurations
+4. Static files configurations
+5. Templates configurations
+6. Middleware configurations
+7. Authentication configurations
+8. Internationalization configurations
+"""
 from pathlib import Path
+"""
+Django项目配置模块，包含：
+1. 基础配置(DEBUG模式、密钥等)
+2. 应用配置(INSTALLED_APPS)
+3. 数据库配置
+4. 静态文件配置
+5. 中间件配置
+6. 模板配置
+7. 国际化配置
+8. 安全配置
+
+Django project settings module, contains:
+1. Basic settings (DEBUG mode, SECRET_KEY etc.)
+2. Application configuration (INSTALLED_APPS)
+3. Database configuration
+4. Static files settings
+5. Middleware configuration
+6. Templates configuration
+7. Internationalization settings
+8. Security settings
+"""
 import os
 from dotenv import load_dotenv
 
